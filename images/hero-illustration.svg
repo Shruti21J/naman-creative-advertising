@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450" role="img" aria-label="B2B plastic manufacturing illustration">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eff6ff"/>
+      <stop offset="100%" style="stop-color:#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="lightBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="450" rx="24" fill="url(#bgGrad)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="520" cy="60" r="40" fill="#bfdbfe" opacity="0.5"/>
+  <circle cx="80" cy="380" r="60" fill="#bfdbfe" opacity="0.4"/>
+  <circle cx="480" cy="380" r="30" fill="#93c5fd" opacity="0.3"/>
+
+  <!-- Factory building -->
+  <rect x="80" y="180" width="180" height="140" rx="8" fill="#e2e8f0"/>
+  <rect x="80" y="180" width="180" height="30" rx="8" fill="url(#blueGrad)"/>
+  <rect x="100" y="230" width="40" height="50" rx="4" fill="#94a3b8" opacity="0.6"/>
+  <rect x="160" y="230" width="40" height="50" rx="4" fill="#94a3b8" opacity="0.6"/>
+  <rect x="220" y="230" width="30" height="90" rx="4" fill="#64748b" opacity="0.5"/>
+
+  <!-- Chimney -->
+  <rect x="220" y="120" width="30" height="60" rx="4" fill="#64748b"/>
+  <ellipse cx="235" cy="118" rx="20" ry="8" fill="#475569"/>
+
+  <!-- Plastic containers stack -->
+  <rect x="320" y="250" width="70" height="70" rx="8" fill="url(#lightBlue)" opacity="0.9"/>
+  <rect x="335" y="235" width="70" height="70" rx="8" fill="url(#blueGrad)" opacity="0.85"/>
+  <rect x="350" y="220" width="70" height="70" rx="8" fill="#1e40af" opacity="0.8"/>
+  <!-- Container lids -->
+  <rect x="320" y="245" width="70" height="10" rx="3" fill="#93c5fd"/>
+  <rect x="335" y="230" width="70" height="10" rx="3" fill="#60a5fa"/>
+  <rect x="350" y="215" width="70" height="10" rx="3" fill="#3b82f6"/>
+
+  <!-- Plastic bottle -->
+  <path d="M470 280 L470 220 Q470 200 490 200 L510 200 Q530 200 530 220 L530 280 Q530 320 500 320 Q470 320 470 280Z" fill="url(#lightBlue)" opacity="0.85"/>
+  <rect x="485" y="185" width="30" height="20" rx="4" fill="#1d4ed8"/>
+  <ellipse cx="500" cy="200" rx="18" ry="6" fill="#2563eb"/>
+
+  <!-- Plastic bucket -->
+  <path d="M420 300 L410 360 L490 360 L480 300 Z" fill="#3b82f6" opacity="0.8"/>
+  <ellipse cx="450" cy="300" rx="40" ry="10" fill="#60a5fa"/>
+  <path d="M415 300 Q450 285 485 300" stroke="#1d4ed8" stroke-width="3" fill="none"/>
+
+  <!-- Delivery truck -->
+  <rect x="100" y="340" width="120" height="50" rx="6" fill="url(#blueGrad)"/>
+  <rect x="220" y="355" width="50" height="35" rx="4" fill="#1e40af"/>
+  <circle cx="130" cy="395" r="18" fill="#1e293b"/>
+  <circle cx="130" cy="395" r="10" fill="#64748b"/>
+  <circle cx="250" cy="395" r="18" fill="#1e293b"/>
+  <circle cx="250" cy="395" r="10" fill="#64748b"/>
+  <rect x="110" y="350" width="30" height="20" rx="3" fill="#bfdbfe" opacity="0.7"/>
+  <rect x="150" y="350" width="30" height="20" rx="3" fill="#bfdbfe" opacity="0.7"/>
+
+  <!-- Business handshake icon area -->
+  <circle cx="300" cy="130" r="50" fill="white" opacity="0.9"/>
+  <path d="M275 135 L290 150 L325 115" stroke="#2563eb" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="300" y="200" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#1e40af">B2B Partnership</text>
+
+  <!-- Floating boxes -->
+  <rect x="520" y="200" width="40" height="40" rx="6" fill="#dbeafe" transform="rotate(15 540 220)"/>
+  <rect x="540" y="260" width="35" height="35" rx="6" fill="#bfdbfe" transform="rotate(-10 557 277)"/>
+</svg>
