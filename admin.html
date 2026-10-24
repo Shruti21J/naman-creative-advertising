@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Portal | Naman Creative Advertising</title>
+
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+    <main class="admin-container">
+
+        <!-- Login section -->
+        <section class="login-card" id="login-section">
+            <h1>Naman Creative</h1>
+            <p>Admin Portal</p>
+
+            <form id="login-form">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    autocomplete="username"
+                >
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                >
+
+                <button type="submit">Log In</button>
+
+                <p id="login-error" role="alert"></p>
+            </form>
+        </section>
+
+        <!-- Dashboard section: hidden until login -->
+        <section id="dashboard-section" hidden>
+            <h1>Enquiry Inbox</h1>
+
+            <button id="logout-button" type="button">
+                Log Out
+            </button>
+
+            <p id="dashboard-message" role="status"></p>
+
+            <div id="enquiries-container"></div>
+        </section>
+
+    </main>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

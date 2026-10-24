@@ -12,47 +12,8 @@
   }
 
   /* Real catalogue — filenames match files inside images/ */
-  var PRODUCTS = [
-    { id: 1, category: 'countertop', name: 'Single-shelf countertop unit', description: 'Compact branded CTU for a focused product story on checkout counters.', image: 'images/countertop/1 shelf CTU.png' },
-    { id: 2, category: 'countertop', name: 'Two-shelf countertop unit', description: 'Two-tier counter display with header panel and side branding area.', image: 'images/countertop/2 shelf CTU.png' },
-    { id: 3, category: 'countertop', name: 'Peg-hook countertop display', description: 'Counter unit with hanging hooks and a lower tray for boxed or accessory products.', image: 'images/countertop/countertop display 2.png' },
-    { id: 4, category: 'countertop', name: 'Three-tier snack rack', description: 'Plastic countertop rack with three shelves for pouches and packaged snacks.', image: 'images/countertop/Plastic CTU.png' },
-    { id: 5, category: 'countertop', name: 'Three-shelf FSU-style unit', description: 'Larger countertop / FSU-style display with header and three product shelves.', image: 'images/countertop/Sunpack CTU FSU.jpeg' },
-    { id: 6, category: 'countertop', name: 'Two-tier snack display', description: 'Open two-shelf unit with a printed header for impulse snack placement.', image: 'images/countertop/ChatGPT Image Jun 14, 2026, 06_05_07 PM.png' },
-    { id: 7, category: 'countertop', name: 'Two-shelf paint display', description: 'Countertop unit with a wide header and two open shelves for canned products.', image: 'images/countertop/ChatGPT Image Jun 14, 2026, 06_10_05 PM.png' },
-    { id: 8, category: 'countertop', name: 'Wire bottle countertop stand', description: 'Metal wire unit with header card, suited to bottled products on a counter.', image: 'images/countertop/ChatGPT Image May 27, 2026, 08_58_22 PM.png' },
-    { id: 9, category: 'countertop', name: 'Two-shelf personal care display', description: 'Studio-finished two-shelf unit for bottles, lotions, and small personal care packs.', image: 'images/countertop/WhatsApp Image 2026-06-18 at 8.54.14 PM.jpeg' },
-    { id: 10, category: 'countertop', name: 'Gravity-feed countertop display', description: 'Multi-pocket gravity feed unit for sachets, seed packs, or similar SKUs.', image: 'images/countertop/WhatsApp Image 2026-06-18 at 8.54.15 PM.jpeg' },
-    { id: 11, category: 'countertop', name: 'Two-step well countertop unit', description: 'Stepped unit with bottle wells for personal care products on a counter.', image: 'images/countertop/WhatsApp Image 2026-06-18 at 8.54.15 PM (1).jpeg' },
-    { id: 12, category: 'countertop', name: 'Two-shelf bottle FSU', description: 'Narrow two-shelf unit with a header, suited to bottled products on a counter or floor edge.', image: 'images/countertop/WhatsApp Image 2026-06-18 at 8.54.15 PM (2).jpeg' },
-    { id: 13, category: 'countertop', name: 'Tray-style bottle display', description: 'Low-profile tray with bottle wells and a printed header panel.', image: 'images/countertop/WhatsApp Image 2026-06-18 at 9.00.26 PM.jpeg' },
-    { id: 14, category: 'countertop', name: 'Three-well corrugated tray', description: 'Corrugated tray with three bottle wells and a printed header panel.', image: 'images/countertop/WhatsApp Image 2026-06-18 at 9.00.26 PM (1).jpeg' },
+  var PRODUCTS = [];
 
-    { id: 15, category: 'hangers', name: 'Half-moon bottle hanger', description: 'Plastic half-moon hanger with hook and lower rail for hanging bottled SKUs.', image: 'images/display hangers/Bottle hanger (1).jpeg' },
-    { id: 16, category: 'hangers', name: 'Ring bottle hanger', description: 'Circular hanging display with multiple bottle rings and a header card.', image: 'images/display hangers/Bottle hanger (2).jpeg' },
-    { id: 17, category: 'hangers', name: 'Curved-bar bottle hanger', description: 'Slim hanging bar with rope mount, suited to a short row of bottles.', image: 'images/display hangers/Bottle hanger (3).jpeg' },
-    { id: 18, category: 'hangers', name: 'Printed half-moon hanger', description: 'Branded half-moon hanger with graphic panel and bottle rail.', image: 'images/display hangers/Bottle hanger (5).jpeg' },
-    { id: 19, category: 'hangers', name: 'Header-rail bottle hanger', description: 'Wide header plate with a lower rail for hanging bottled products.', image: 'images/display hangers/Bottle hanger (8).jpeg' },
-    { id: 20, category: 'hangers', name: 'Pouch display hanger', description: 'Hanging bar with a branded header for pouches and small packed goods.', image: 'images/display hangers/Pouch Display hanger.jpeg' },
-    { id: 21, category: 'hangers', name: 'Three-slot pouch hanger', description: 'Red hanging frame with three lower slots for pouches or sachets.', image: 'images/display hangers/Pouch Display hanger (2).jpeg' },
-    { id: 22, category: 'hangers', name: 'Two-slot branded pouch hanger', description: 'Hanging display with a printed header and two pouch openings.', image: 'images/display hangers/Pouch Display hanger (3).jpeg' },
-    { id: 23, category: 'hangers', name: 'Two-slot pouch hanger', description: 'Hanging pouch unit with a wide graphic header and two lower slots.', image: 'images/display hangers/Pouch Display hanger (4).jpeg' },
-
-    { id: 24, category: 'stands', name: 'Four-shelf floor display', description: 'Tall branded floor stand with four open shelves and a header panel.', image: 'images/hero display.png' },
-    { id: 25, category: 'stands', name: 'Three-tier bottle floor stand', description: 'Floor unit with three bottle shelves and a header for in-aisle placement.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_34_09 PM.png' },
-    { id: 26, category: 'stands', name: 'Four-shelf plastic floor rack', description: 'Open plastic rack with header card, suited to bottled or boxed products.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_34_22 PM.png' },
-    { id: 27, category: 'stands', name: 'Blue metal A-frame stand', description: 'Powder-coated A-frame bottle stand with an open header panel.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_34_40 PM.png' },
-    { id: 28, category: 'stands', name: 'Wire-shelf floor merchandiser', description: 'Floor unit with wire shelves, header, and large side branding panels.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_34_51 PM.png' },
-    { id: 29, category: 'stands', name: 'Three-shelf plastic floor rack', description: 'Open plastic floor rack with perforated shelves and a header card.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_35_05 PM.png' },
-    { id: 30, category: 'stands', name: 'Metal bottle rack stand', description: 'Powder-coated metal stand with multiple bottle rails and a top header.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_35_26 PM.png' },
-    { id: 31, category: 'stands', name: 'Multi-tier ring bottle tower', description: 'Pedestal tower with stacked bottle rings and a branded canopy top.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_35_33 PM.png' },
-    { id: 32, category: 'stands', name: 'Wheeled metal display trolley', description: 'Slim metal trolley with three trays and wheels for movable in-store placement.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_35_39 PM.png' },
-    { id: 33, category: 'stands', name: 'Wheeled bottle trolley stand', description: 'Handled trolley stand with bottle cut-outs on each shelf and rear wheels.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_35_43 PM.png' },
-    { id: 34, category: 'stands', name: 'Rotating bottle floor stand', description: 'Pedestal stand with circular bottle rings and a header board.', image: 'images/Display Stands/ChatGPT Image Jun 4, 2026, 09_51_30 PM.png' },
-    { id: 35, category: 'stands', name: 'Three-tier plastic floor stand', description: 'Slotted plastic shelves with header pocket for a custom brand card.', image: 'images/Display Stands/ChatGPT Image Jun 17, 2026, 10_38_06 PM.png' },
-    { id: 36, category: 'stands', name: 'Four-shelf FSU floor stand', description: 'Carded FSU with four shelves and a header for stationery or boxed goods.', image: 'images/Display Stands/ChatGPT Image Jun 18, 2026, 03_17_35 PM.png' },
-    { id: 37, category: 'stands', name: 'A-frame bottle floor stand', description: 'Inclined A-frame stand with branded rails for bottled products.', image: 'images/Display Stands/ChatGPT Image Jun 18, 2026, 03_24_26 PM.png' }
-  ];
 
   var CATEGORY_LABELS = {
     countertop: 'Countertop',
@@ -112,6 +73,38 @@
     initLazyLoading();
     initScrollReveal();
   }
+  
+async function loadProducts() {
+  try {
+    var response = await fetch("http://127.0.0.1:8000/products");
+
+    if (!response.ok) {
+      throw new Error("Could not load products");
+    }
+
+    var data = await response.json();
+
+    PRODUCTS = data.products.map(function (product) {
+      return {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        description: product.description || "",
+        image: product.image_url || "",
+        moq: product.moq || null
+      };
+    });
+
+    renderProducts(activeFilter || "all");
+  } catch (error) {
+    console.error("Product loading failed:", error);
+    if (productsGrid) {
+      productsGrid.innerHTML =
+        '<p class="product-loading-error">Products could not be loaded. Please try again later.</p>';
+    }
+  }
+}
+
 
   function bindQuoteButtons() {
     document.querySelectorAll('.product-quote-btn').forEach(function (btn) {
@@ -343,7 +336,7 @@
       });
     });
 
-    contactForm.addEventListener('submit', function (e) {
+    contactForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       var isValid = true;
       Object.keys(fields).forEach(function (key) {
@@ -355,15 +348,52 @@
         return;
       }
 
-      var successMsg = document.getElementById('form-success');
-      successMsg.hidden = false;
-      contactForm.reset();
-      setTimeout(function () { successMsg.hidden = true; }, 5000);
+      
+var formData = {
+  name: fields.name.el.value.trim(),
+  phone: fields.phone.el.value.trim(),
+  product: fields.product.el.value.trim(),
+  message: document.getElementById('message').value.trim()
+};
+
+var submitButton = contactForm.querySelector('button[type="submit"]');
+submitButton.disabled = true;
+submitButton.textContent = 'Submitting...';
+
+try {
+  var response = await fetch('http://127.0.0.1:8000/enquiries', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+  });
+
+  if (!response.ok) {
+    throw new Error('Could not submit enquiry.');
+  }
+
+  var successMsg = document.getElementById('form-success');
+  successMsg.hidden = false;
+  contactForm.reset();
+
+  setTimeout(function () {
+    successMsg.hidden = true;
+  }, 5000);
+
+} catch (error) {
+  alert('We could not submit your enquiry. Please try again.');
+
+} finally {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Submit Enquiry';
+}
+
     });
   }
 
   function init() {
-    renderProducts('all');
+    loadProducts('all');
     initFilters();
     initMobileNav();
     initSmoothScroll();
