@@ -5,6 +5,12 @@ const loginForm = document.getElementById("login-form");
 const loginSection = document.getElementById("login-section");
 const dashboardSection = document.getElementById("dashboard-section");
 const loginError = document.getElementById("login-error");
+const productsContainer = document.getElementById("products-container");
+
+const productForm = document.getElementById("product-form");
+const addProductButton = document.getElementById("add-product-button");
+const cancelProductButton = document.getElementById("cancel-product-button");
+
 
 loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -41,6 +47,7 @@ sessionStorage.setItem("adminToken", adminToken);
         loginError.textContent = "";
 
         await loadEnquiries();
+        await loadProducts();
 
     } catch (error) {
         loginError.textContent =
@@ -177,6 +184,155 @@ async function loadEnquiries() {
     }
 }
 
+async function loadProducts() {
+    const message = document.getElementById("products-message");
+
+    message.textContent = "Loading products...";
+    productsContainer.replaceChildren();
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/products`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Could not load products.");
+        }
+
+        // Support either a plain array or an object containing products.
+        const products = Array.isArray(data) ? data : data.products;
+
+        if (!Array.isArray(products)) {
+            throw new Error("Unexpected product data format.");
+        }
+
+        message.textContent = `Total products: ${products.length}`;
+
+        if (products.length === 0) {
+            productsContainer.textContent = "No products found.";
+            return;
+        }
+
+        products.forEach((product) => {
+            const card = document.createElement("article");
+            card.className = "product-card";
+
+            const name = document.createElement("h2");
+            name.textContent = product.name;
+
+            const category = document.createElement("p");
+            category.textContent = `Category: ${product.category}`;
+
+            const description = document.createElement("p");
+            description.textContent = product.description || "No description";
+
+            const moq = document.createElement("p");
+            moq.textContent = `Minimum order: ${product.moq || "Not specified"}`;
+
+            
+const image = document.createElement("img");
+image.alt = product.name;
+image.loading = "lazy";
+
+if (product.image_url) {
+    image.src = product.image_url;
+} else {
+    image.hidden = true;
+}
+
+const price = document.createElement("p");
+price.textContent = `Price: ${product.price ?? "Not specified"}`;
+
+const editButton = document.createElement("button");
+editButton.type = "button";
+editButton.textContent = "Edit";
+editButton.addEventListener("click", function () { document.getElementById("product-name").value = product.name || "";
+    document.getElementById("product-category").value = product.category || "";
+    document.getElementById("product-description").value = product.description || "";
+    document.getElementById("product-price").value = product.price ?? "";
+    document.getElementById("product-image").value = product.image_url || "";
+    document.getElementById("product-moq").value = product.moq || "";
+
+    productForm.dataset.productId = product.id;
+    productForm.querySelector('h2').textContent = "Edit Product";
+
+    const saveButton = productForm.querySelector('button[type="submit"]');
+    saveButton.textContent = "Save Changes";
+
+    productForm.hidden = false;
+    addProductButton.hidden = true;
+    productForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    
+});
+
+const deleteButton = document.createElement("button");
+deleteButton.type = "button";
+deleteButton.textContent = "Delete";
+
+deleteButton.addEventListener("click", async function () {
+    const confirmed = window.confirm(
+        `Are you sure you want to delete "${product.name}"?`
+    );
+
+    if (!confirmed) return;
+
+    deleteButton.disabled = true;
+    deleteButton.textContent = "Deleting...";
+
+    const message = document.getElementById("products-message");
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/products/${product.id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${adminToken}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(
+                data.detail || "Could not delete product."
+            );
+        }
+
+        message.textContent = "Product deleted successfully!";
+        await loadProducts();
+    } catch (error) {
+        message.textContent = error.message === "Failed to fetch"
+            ? "Cannot reach the backend. Make sure FastAPI is running."
+            : error.message;
+
+        deleteButton.disabled = false;
+        deleteButton.textContent = "Delete";
+    }
+});
+
+
+card.append(
+    image,
+    name,
+    category,
+    description,
+    price,
+    moq,
+    editButton,
+    deleteButton
+);
+
+productsContainer.appendChild(card);
+
+        });
+    } catch (error) {
+        message.textContent = error.message === "Failed to fetch"
+            ? "Cannot reach the backend. Make sure FastAPI is running."
+            : error.message;
+    }
+}
+
+
 document.getElementById("logout-button").addEventListener("click", function () {
     adminToken = null;
 sessionStorage.removeItem("adminToken");
@@ -188,9 +344,100 @@ sessionStorage.removeItem("adminToken");
     loginError.textContent = "";
 });
 
+addProductButton.addEventListener("click", function () {
+    productForm.hidden = false;
+    addProductButton.hidden = true;
+});
+
+cancelProductButton.addEventListener("click", function () {
+    productForm.reset();
+    productForm.hidden = true;
+    addProductButton.hidden = false;
+});
+
+productForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const saveButton = productForm.querySelector('button[type="submit"]');
+    const message = document.getElementById("products-message");
+
+    const product = {
+        name: document.getElementById("product-name").value.trim(),
+        category: document.getElementById("product-category").value.trim(),
+        description: document.getElementById("product-description").value.trim() || null,
+        price: document.getElementById("product-price").value === ""
+            ? null
+            : Number(document.getElementById("product-price").value),
+        image_url: document.getElementById("product-image").value.trim() || null,
+        moq: document.getElementById("product-moq").value.trim() || null
+    };
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+    message.textContent = "";
+
+    try {
+        
+const productId = productForm.dataset.productId;
+const isEditing = Boolean(productId);
+
+const response = await fetch(
+    isEditing
+        ? `${API_BASE_URL}/products/${productId}`
+        : `${API_BASE_URL}/products`,
+    {
+        method: isEditing ? "PUT" : "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(product)
+    }
+);
+
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                typeof data.detail === "string"
+                    ? data.detail
+                    : "Could not save product. Check the fields and try again."
+            );
+        }
+
+        
+message.textContent = isEditing
+? "Product updated successfully!"
+: "Product added successfully!";
+
+productForm.reset();
+delete productForm.dataset.productId;
+productForm.querySelector("h2").textContent = "Add a New Product";
+
+const saveButton = productForm.querySelector('button[type="submit"]');
+saveButton.textContent = "Save Product";
+
+productForm.hidden = true;
+addProductButton.hidden = false;
+
+await loadProducts();
+
+    } catch (error) {
+        message.textContent = error.message === "Failed to fetch"
+            ? "Cannot reach the backend. Make sure FastAPI is running."
+            : error.message;
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "Save Product";
+    }
+});
+
+
 // Restore the dashboard after a page refresh.
 if (adminToken) {
     loginSection.hidden = true;
     dashboardSection.hidden = false;
     loadEnquiries();
+    loadProducts();
 }

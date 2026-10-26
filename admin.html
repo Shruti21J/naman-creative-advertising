@@ -54,7 +54,48 @@
             <p id="dashboard-message" role="status"></p>
 
             <div id="enquiries-container"></div>
+
+            <section id="products-section">
+                <h1>Product Management</h1>
+                <p>Manage your product catalogue here.</p>
+    
+                <button id="add-product-button" type="button">
+                    + Add Product
+                </button>
+                
+<form id="product-form" hidden>
+    <h2>Add a New Product</h2>
+
+    <label for="product-name">Product Name</label>
+    <input id="product-name" name="name" type="text" required maxlength="200">
+
+    <label for="product-category">Category</label>
+    <input id="product-category" name="category" type="text" required maxlength="100">
+
+    <label for="product-description">Description</label>
+    <textarea id="product-description" name="description" rows="3"></textarea>
+
+    <label for="product-price">Price</label>
+    <input id="product-price" name="price" type="number" min="0" step="0.01">
+
+    <label for="product-image">Image URL</label>
+    <input id="product-image" name="image_url" type="url">
+
+    <label for="product-moq">Minimum Order Quantity (MOQ)</label>
+    <input id="product-moq" name="moq" type="text">
+
+    <button type="submit">Save Product</button>
+    <button id="cancel-product-button" type="button">Cancel</button>
+</form>
+
+    
+                <p id="products-message" role="status"></p>
+    
+                <div id="products-container"></div>
+            </section>
         </section>
+        
+
 
     </main>
 
