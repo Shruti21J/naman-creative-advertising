@@ -377,3 +377,81 @@ def delete_product(
         "message": "Product deleted successfully",
         "deleted_product": dict(deleted_product),
     }
+# --------------------------------------------------
+# 8. Admin analytics
+# --------------------------------------------------
+
+@app.get("/admin/analytics/overview")
+def get_analytics_overview(
+    current_admin: str = Depends(get_current_admin),
+):
+    query = text("""
+        SELECT
+            COUNT(*) AS total_enquiries,
+            COUNT(*) FILTER (WHERE status = 'new') AS new_enquiries,
+            COUNT(*) FILTER (WHERE status = 'contacted') AS contacted_enquiries,
+            COUNT(*) FILTER (WHERE status = 'completed') AS completed_enquiries
+        FROM enquiries
+    """)
+
+    products_query = text("""
+        SELECT COUNT(*) AS total_products
+        FROM products
+    """)
+
+    with engine.connect() as connection:
+        enquiry_stats = dict(connection.execute(query).mappings().one())
+        product_stats = dict(connection.execute(products_query).mappings().one())
+
+    return {
+        **enquiry_stats,
+        **product_stats,
+    }
+
+
+@app.get("/admin/analytics/monthly-enquiries")
+def get_monthly_enquiries(
+    current_admin: str = Depends(get_current_admin),
+):
+    query = text("""
+        SELECT
+            TO_CHAR(DATE_TRUNC('month', created_at), 'Mon YYYY') AS month,
+            DATE_TRUNC('month', created_at) AS month_date,
+            COUNT(*) AS total
+        FROM enquiries
+        WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '5 months'
+        GROUP BY DATE_TRUNC('month', created_at)
+        ORDER BY month_date
+    """)
+
+    with engine.connect() as connection:
+        rows = connection.execute(query).mappings().all()
+
+    return {
+        "months": [row["month"] for row in rows],
+        "counts": [row["total"] for row in rows],
+    }
+
+
+@app.get("/admin/analytics/top-products")
+def get_top_products(
+    current_admin: str = Depends(get_current_admin),
+):
+    query = text("""
+        SELECT
+            product AS name,
+            COUNT(*) AS total_enquiries
+        FROM enquiries
+        WHERE product IS NOT NULL AND TRIM(product) <> ''
+        GROUP BY product
+        ORDER BY total_enquiries DESC, product ASC
+        LIMIT 5
+    """)
+
+    with engine.connect() as connection:
+        rows = connection.execute(query).mappings().all()
+
+    return {
+        "products": [row["name"] for row in rows],
+        "counts": [row["total_enquiries"] for row in rows],
+    }

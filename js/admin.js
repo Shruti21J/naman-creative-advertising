@@ -48,6 +48,7 @@ sessionStorage.setItem("adminToken", adminToken);
 
         await loadEnquiries();
         await loadProducts();
+        await loadAnalytics();
 
     } catch (error) {
         loginError.textContent =
@@ -440,4 +441,197 @@ if (adminToken) {
     dashboardSection.hidden = false;
     loadEnquiries();
     loadProducts();
+    loadAnalytics();
 }
+
+/* --------------------------------------------------
+   Admin analytics
+-------------------------------------------------- */
+
+let monthlyEnquiriesChart = null;
+let topProductsChart = null;
+
+async function loadAnalytics() {
+    const message = document.getElementById("analytics-message");
+    const refreshButton = document.getElementById(
+        "refresh-analytics-button"
+    );
+
+    message.textContent = "Loading analytics...";
+
+    if (typeof Chart === "undefined") {
+        message.textContent =
+            "Chart.js did not load. Check your internet connection.";
+        return;
+    }
+
+    refreshButton.disabled = true;
+
+    try {
+        const headers = {
+            Authorization: `Bearer ${adminToken}`
+        };
+
+        const [overviewResponse, monthlyResponse, topResponse] =
+            await Promise.all([
+                fetch(`${API_BASE_URL}/admin/analytics/overview`, {
+                    headers
+                }),
+                fetch(
+                    `${API_BASE_URL}/admin/analytics/monthly-enquiries`,
+                    { headers }
+                ),
+                fetch(
+                    `${API_BASE_URL}/admin/analytics/top-products`,
+                    { headers }
+                )
+            ]);
+
+        const responses = [
+            overviewResponse,
+            monthlyResponse,
+            topResponse
+        ];
+
+        const results = await Promise.all(
+            responses.map(async (response) => {
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.detail || "Could not load analytics."
+                    );
+                }
+
+                return data;
+            })
+        );
+
+        const [overview, monthly, topProducts] = results;
+
+        document.getElementById("total-enquiries").textContent =
+            overview.total_enquiries ?? 0;
+
+        document.getElementById("new-enquiries").textContent =
+            overview.new_enquiries ?? 0;
+
+        document.getElementById("contacted-enquiries").textContent =
+            overview.contacted_enquiries ?? 0;
+
+        document.getElementById("completed-enquiries").textContent =
+            overview.completed_enquiries ?? 0;
+
+        document.getElementById("total-products").textContent =
+            overview.total_products ?? 0;
+
+        renderMonthlyEnquiriesChart(monthly);
+        renderTopProductsChart(topProducts);
+
+        message.textContent = "Analytics updated successfully.";
+    } catch (error) {
+        message.textContent =
+            error.message === "Failed to fetch"
+                ? "Cannot reach the backend. Check that FastAPI is running."
+                : error.message;
+    } finally {
+        refreshButton.disabled = false;
+    }
+}
+
+function renderMonthlyEnquiriesChart(data) {
+    const canvas = document.getElementById(
+        "monthly-enquiries-chart"
+    );
+
+    if (monthlyEnquiriesChart) {
+        monthlyEnquiriesChart.destroy();
+    }
+
+    monthlyEnquiriesChart = new Chart(canvas, {
+        type: "line",
+        data: {
+            labels: data.months || [],
+            datasets: [{
+                label: "Enquiries",
+                data: data.counts || [],
+                borderColor: "#c9a44c",
+                backgroundColor: "rgba(201, 164, 76, 0.15)",
+                pointBackgroundColor: "#c9a44c",
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: "#f8f5ed" }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "#c9c2b3" },
+                    grid: { color: "#38332a" }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: "#c9c2b3",
+                        precision: 0
+                    },
+                    grid: { color: "#38332a" }
+                }
+            }
+        }
+    });
+}
+
+function renderTopProductsChart(data) {
+    const canvas = document.getElementById("top-products-chart");
+
+    if (topProductsChart) {
+        topProductsChart.destroy();
+    }
+
+    topProductsChart = new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: data.products || [],
+            datasets: [{
+                label: "Enquiries",
+                data: data.counts || [],
+                backgroundColor: "#c9a44c",
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: "#f8f5ed" }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: "#c9c2b3",
+                        precision: 0
+                    },
+                    grid: { color: "#38332a" }
+                },
+                y: {
+                    ticks: { color: "#f8f5ed" },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+document.getElementById("refresh-analytics-button")
+    .addEventListener("click", loadAnalytics);
