@@ -6,16 +6,28 @@ from sqlalchemy import create_engine, URL, text
 
 load_dotenv()
 
-database_url = URL.create(
-    drivername="postgresql+psycopg",
-    username=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    host=os.getenv("DB_HOST", "localhost"),
-    port=int(os.getenv("DB_PORT", "5432")),
-    database=os.getenv("DB_NAME"),
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(database_url, pool_pre_ping=True)
+if DATABASE_URL:
+    database_url = DATABASE_URL.replace(
+        "postgresql://",
+        "postgresql+psycopg://",
+        1
+    )
+else:
+    database_url = URL.create(
+        drivername="postgresql+psycopg",
+        username=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST", "localhost"),
+        port=int(os.getenv("DB_PORT", "5432")),
+        database=os.getenv("DB_NAME"),
+    )
+
+engine = create_engine(
+    database_url,
+    pool_pre_ping=True
+)
 
 
 def test_connection():
