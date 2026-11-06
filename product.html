@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore product details, specifications and images from Naman Creative Advertising.">
+  <title>Product Details | Naman Creative Advertising</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/product.css">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+</head>
+
+<body>
+
+  <header class="header" id="header">
+    <nav class="nav container" aria-label="Main navigation">
+
+      <a href="index.html" class="nav__logo">
+        <span class="nav__logo-mark">N</span>
+        <span class="nav__logo-text">
+          <span class="nav__logo-name">Naman</span>
+          <span class="nav__logo-sub">Creative Advertising</span>
+        </span>
+      </a>
+
+      <button class="nav__toggle" id="nav-toggle"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="nav-menu">
+        <span class="nav__toggle-bar"></span>
+        <span class="nav__toggle-bar"></span>
+        <span class="nav__toggle-bar"></span>
+      </button>
+
+      <ul class="nav__menu" id="nav-menu">
+        <li><a href="index.html#home" class="nav__link">Home</a></li>
+        <li><a href="index.html#about" class="nav__link">About</a></li>
+        <li><a href="index.html#products" class="nav__link">Products</a></li>
+        <li><a href="index.html#why-us" class="nav__link">Why Us</a></li>
+        <li><a href="index.html#contact" class="nav__link">Contact</a></li>
+        <li class="nav__cta-item">
+          <a href="index.html#contact" class="btn btn--primary btn--sm">
+            Request a Quote
+          </a>
+        </li>
+      </ul>
+
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <section class="product-detail section">
+      <div class="container">
+
+        <a href="index.html#products" class="product-back-link">
+          ← Back to Products
+        </a>
+
+        <div id="product-loading" class="product-message">
+          Loading product details...
+        </div>
+
+        <div id="product-error" class="product-message" hidden>
+          Product could not be found.
+          <a href="index.html#products">Browse all products</a>
+        </div>
+
+        <div id="product-content" hidden>
+
+          <div class="product-detail__grid">
+
+            <div class="product-gallery">
+
+              <div class="product-gallery__main">
+                <img id="main-product-image" src="" alt="Product image">
+              </div>
+            
+              <div class="product-gallery__controls">
+                <button type="button" id="gallery-prev" aria-label="Previous image">
+                  &#8249;
+                </button>
+            
+                <span id="gallery-counter">1 / 1</span>
+            
+                <button type="button" id="gallery-next" aria-label="Next image">
+                  &#8250;
+                </button>
+              </div>
+            
+            
+
+              
+
+            <div class="product-info">
+
+              <p id="product-category" class="product-info__category"></p>
+
+              <h1 id="product-name" class="product-info__name"></h1>
+
+              <p id="product-description" class="product-info__description"></p>
+
+              <div class="product-info__meta">
+                <p>
+                  <strong>Minimum Order Quantity:</strong>
+                  <span id="product-moq">Quote on request</span>
+                </p>
+
+                <p>
+                  <strong>Price:</strong>
+                  <span id="product-price">Available on request</span>
+                </p>
+              </div>
+
+              <a id="product-quote-button"
+                href="index.html#contact"
+                class="btn btn--primary btn--lg">
+                Enquire About This Product
+              </a>
+
+            </div>
+
+          </div>
+
+          <section class="product-specifications">
+            <p class="product-specifications__eyebrow">Product Information</p>
+            <h2>Specifications</h2>
+
+            <div id="product-specifications-list">
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 Naman Creative Advertising. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/product.js"></script>
+
+</body>
+</html>

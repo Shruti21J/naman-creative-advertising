@@ -121,31 +121,65 @@
                 <button id="add-product-button" type="button">
                     + Add Product
                 </button>
+
+                <form id="product-form" hidden>
+                    <h2 id="product-form-heading">Add a New Product</h2>
                 
-<form id="product-form" hidden>
-    <h2>Add a New Product</h2>
+                    <label for="product-name">Product Name</label>
+                    <input id="product-name" name="name" type="text" required maxlength="200">
+                
+                    <label for="product-category">Category</label>
+                    <input id="product-category" name="category" type="text" required maxlength="100">
+                
+                    <label for="product-description">Description</label>
+                    <textarea id="product-description" name="description" rows="3"></textarea>
+                
+                    <label for="product-price">Price</label>
+                    <input id="product-price" name="price" type="number" min="0" step="0.01">
+                
+                    <h3>Main Product Image</h3>
+<p>Choose the primary photograph for this product.</p>
 
-    <label for="product-name">Product Name</label>
-    <input id="product-name" name="name" type="text" required maxlength="200">
+<input
+    id="product-image-upload"
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+>
 
-    <label for="product-category">Category</label>
-    <input id="product-category" name="category" type="text" required maxlength="100">
+<div id="main-image-preview"></div>
+                
+                    <label for="product-moq">Minimum Order Quantity (MOQ)</label>
+                    <input id="product-moq" name="moq" type="text">
+                
+                    <hr>
+                
+                    <h3>Product Specifications</h3>
+                    <p>Add details specific to this product.</p>
+                
+                    <div id="specifications-container"></div>
+                
+                    <button id="add-specification-button" type="button">
+                        + Add Specification
+                    </button>
+                
+                    <hr>
 
-    <label for="product-description">Description</label>
-    <textarea id="product-description" name="description" rows="3"></textarea>
+<h3>Product Gallery</h3>
+<p>Upload additional photographs to display in the product carousel.</p>
 
-    <label for="product-price">Price</label>
-    <input id="product-price" name="price" type="number" min="0" step="0.01">
+<input
+    id="additional-image-upload"
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    multiple
+>
 
-    <label for="product-image">Image URL</label>
-    <input id="product-image" name="image_url" type="url">
-
-    <label for="product-moq">Minimum Order Quantity (MOQ)</label>
-    <input id="product-moq" name="moq" type="text">
-
-    <button type="submit">Save Product</button>
-    <button id="cancel-product-button" type="button">Cancel</button>
-</form>
+<div id="additional-images-container"></div>
+                
+                    <button type="submit">Save Product</button>
+                    <button id="cancel-product-button" type="button">Cancel</button>
+                </form>
+                
 
     
                 <p id="products-message" role="status"></p>

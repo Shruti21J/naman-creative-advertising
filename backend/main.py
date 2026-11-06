@@ -1,15 +1,21 @@
 
 import os
+import json
 from datetime import datetime, timedelta, timezone
+
 
 import jwt
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File
+import cloudinary
+import cloudinary.uploader
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from pwdlib import PasswordHash
 from sqlalchemy import text
+
 
 from database import engine
 
@@ -23,6 +29,12 @@ load_dotenv()
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 
 if not ADMIN_USERNAME or not ADMIN_PASSWORD:
     raise RuntimeError("Admin credentials are missing from the .env file")
@@ -102,6 +114,8 @@ class ProductCreate(BaseModel):
     price: float | None = Field(default=None, ge=0)
     image_url: str | None = None
     moq: str | None = None
+    specifications: dict = Field(default_factory=dict)
+    images: list[str] = Field(default_factory=list)
 
 
 class EnquiryCreate(BaseModel):
@@ -122,10 +136,49 @@ class EnquiryStatusUpdate(BaseModel):
     )
 
 
+@app.post("/admin/upload-image")
+async def upload_product_image(
+    file: UploadFile = File(...),
+    current_admin: str = Depends(get_current_admin)
+):
+    allowed_types = ["image/jpeg", "image/png", "image/webp"]
 
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="Only JPG, PNG and WEBP images are allowed"
+        )
+
+    image_data = await file.read()
+
+    if len(image_data) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="Image must be smaller than 5 MB"
+        )
+
+    try:
+        result = cloudinary.uploader.upload(
+            image_data,
+            folder="naman-creative/products",
+            resource_type="image"
+        )
+
+        return {
+            "message": "Image uploaded successfully",
+            "image_url": result["secure_url"]
+        }
+
+    except Exception as e:
+     print("CLOUDINARY UPLOAD ERROR:", repr(e))
+     raise HTTPException(
+        status_code=500,
+        detail="Image upload failed. Check backend terminal."
+    )
 # --------------------------------------------------
 # 5. Public routes
 # --------------------------------------------------
+
 
 @app.get("/")
 def home():
@@ -145,7 +198,7 @@ def get_products():
     with engine.connect() as connection:
         result = connection.execute(
             text("""
-                SELECT id, name, category, description, price, image_url, moq
+                SELECT id, name, category, description, price, image_url, moq, specifications, images
                 FROM products
                 ORDER BY id
             """)
@@ -160,6 +213,8 @@ def get_products():
                 "price": float(row.price) if row.price is not None else None,
                 "image_url": row.image_url,
                 "moq": row.moq,
+                "specifications": row.specifications or {},
+                "images": row.images or [],
             }
             for row in result
         ]
@@ -293,14 +348,21 @@ def create_product(
 ):
     query = text("""
         INSERT INTO products
-            (name, category, description, price, image_url, moq)
+            (name, category, description, price, image_url, moq,
+             specifications, images)
         VALUES
-            (:name, :category, :description, :price, :image_url, :moq)
-        RETURNING id, name, category, description, price, image_url, moq
+            (:name, :category, :description, :price, :image_url, :moq,
+             CAST(:specifications AS JSONB), CAST(:images AS JSONB))
+        RETURNING id, name, category, description, price, image_url, moq,
+                  specifications, images
     """)
 
+    product_data = product.model_dump()
+    product_data["specifications"] = json.dumps(product_data["specifications"])
+    product_data["images"] = json.dumps(product_data["images"])
+
     with engine.begin() as connection:
-        result = connection.execute(query, product.model_dump())
+        result = connection.execute(query, product_data)
         row = result.mappings().one()
 
     return {
@@ -325,19 +387,21 @@ def update_product(
             description = :description,
             price = :price,
             image_url = :image_url,
-            moq = :moq
+            moq = :moq,
+            specifications = CAST(:specifications AS JSONB),
+            images = CAST(:images AS JSONB)
         WHERE id = :product_id
-        RETURNING id, name, category, description, price, image_url, moq
+        RETURNING id, name, category, description, price, image_url, moq,
+                  specifications, images
     """)
 
+    product_data = product.model_dump()
+    product_data["specifications"] = json.dumps(product_data["specifications"])
+    product_data["images"] = json.dumps(product_data["images"])
+    product_data["product_id"] = product_id
+
     with engine.begin() as connection:
-        result = connection.execute(
-            query,
-            {
-                **product.model_dump(),
-                "product_id": product_id,
-            },
-        )
+        result = connection.execute(query, product_data)
         row = result.mappings().one_or_none()
 
     if row is None:

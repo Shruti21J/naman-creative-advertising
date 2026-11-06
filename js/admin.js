@@ -228,6 +228,30 @@ async function loadProducts() {
 
             const moq = document.createElement("p");
             moq.textContent = `Minimum order: ${product.moq || "Not specified"}`;
+            // Display product specifications
+const specifications = document.createElement("div");
+specifications.className = "product-specifications";
+
+const specificationsHeading = document.createElement("h3");
+specificationsHeading.textContent = "Specifications";
+
+specifications.appendChild(specificationsHeading);
+
+const specificationEntries = Object.entries(
+    product.specifications || {}
+);
+
+if (specificationEntries.length > 0) {
+    specificationEntries.forEach(([key, value]) => {
+        const item = document.createElement("p");
+        item.textContent = `${key}: ${value}`;
+        specifications.appendChild(item);
+    });
+} else {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.textContent = "No specifications added.";
+    specifications.appendChild(emptyMessage);
+}
 
             
 const image = document.createElement("img");
@@ -250,11 +274,25 @@ editButton.addEventListener("click", function () { document.getElementById("prod
     document.getElementById("product-category").value = product.category || "";
     document.getElementById("product-description").value = product.description || "";
     document.getElementById("product-price").value = product.price ?? "";
-    document.getElementById("product-image").value = product.image_url || "";
+    mainImageUrl = product.image_url || "";
+mainImagePreview.replaceChildren();
+
+if (mainImageUrl) {
+    const preview = document.createElement("img");
+    preview.src = mainImageUrl;
+    preview.alt = "Main product image preview";
+    preview.style.width = "160px";
+    mainImagePreview.appendChild(preview);
+}
+
+mainImageInput.value = "";
     document.getElementById("product-moq").value = product.moq || "";
+    populateDynamicProductFields(product);
+
+document.getElementById("product-form-heading").textContent = "Edit Product";
 
     productForm.dataset.productId = product.id;
-    productForm.querySelector('h2').textContent = "Edit Product";
+    
 
     const saveButton = productForm.querySelector('button[type="submit"]');
     saveButton.textContent = "Save Changes";
@@ -319,6 +357,7 @@ card.append(
     description,
     price,
     moq,
+    specifications,
     editButton,
     deleteButton
 );
@@ -351,9 +390,21 @@ addProductButton.addEventListener("click", function () {
 });
 
 cancelProductButton.addEventListener("click", function () {
+    mainImageUrl = "";
+    additionalImageUrls = [];
+
+    mainImagePreview.replaceChildren();
+    additionalImagesContainer.replaceChildren();
+    specificationsContainer.replaceChildren();
+
+    mainImageInput.value = "";
+    additionalImageInput.value = "";
+
     productForm.reset();
     productForm.hidden = true;
     addProductButton.hidden = false;
+
+    delete productForm.dataset.productId;
 });
 
 productForm.addEventListener("submit", async function (event) {
@@ -369,8 +420,10 @@ productForm.addEventListener("submit", async function (event) {
         price: document.getElementById("product-price").value === ""
             ? null
             : Number(document.getElementById("product-price").value),
-        image_url: document.getElementById("product-image").value.trim() || null,
-        moq: document.getElementById("product-moq").value.trim() || null
+            image_url: mainImageUrl || null,
+        moq: document.getElementById("product-moq").value.trim() || null,
+        specifications: collectSpecifications(),
+        images: additionalImageUrls
     };
 
     saveButton.disabled = true;
@@ -413,8 +466,16 @@ message.textContent = isEditing
 : "Product added successfully!";
 
 productForm.reset();
+mainImageUrl = "";
+additionalImageUrls = [];
+
+mainImagePreview.replaceChildren();
+mainImageInput.value = "";
+additionalImageInput.value = "";
+specificationsContainer.replaceChildren();
+additionalImagesContainer.replaceChildren();
 delete productForm.dataset.productId;
-productForm.querySelector("h2").textContent = "Add a New Product";
+document.getElementById("product-form-heading").textContent = "Add a New Product";
 
 const saveButton = productForm.querySelector('button[type="submit"]');
 saveButton.textContent = "Save Product";
@@ -635,3 +696,227 @@ function renderTopProductsChart(data) {
 
 document.getElementById("refresh-analytics-button")
     .addEventListener("click", loadAnalytics);
+
+// ==========================================
+// Dynamic Product Specifications and Images
+// ==========================================
+
+const specificationsContainer = document.getElementById("specifications-container");
+const additionalImagesContainer = document.getElementById("additional-images-container");
+const mainImageInput = document.getElementById("product-image-upload");
+const additionalImageInput = document.getElementById("additional-image-upload");
+const mainImagePreview = document.getElementById("main-image-preview");
+
+let mainImageUrl = "";
+let additionalImageUrls = [];
+async function uploadImage(file) {
+    if (!file) return null;
+
+    if (file.size > 5 * 1024 * 1024) {
+        throw new Error(`${file.name} is larger than 5 MB.`);
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`${API_BASE_URL}/admin/upload-image`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${adminToken}`
+        },
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.detail || "Image upload failed.");
+    }
+
+    return data.image_url;
+}
+mainImageInput.addEventListener("change", async () => {
+    const file = mainImageInput.files[0];
+
+    if (!file) return;
+
+    mainImagePreview.textContent = "Uploading image...";
+
+    try {
+        mainImageUrl = await uploadImage(file);
+
+        const preview = document.createElement("img");
+        preview.src = mainImageUrl;
+        preview.alt = "Main product image preview";
+        preview.style.width = "160px";
+
+        mainImagePreview.replaceChildren(preview);
+
+    } catch (error) {
+        mainImagePreview.textContent = error.message;
+        mainImageUrl = "";
+    }
+});
+additionalImageInput.addEventListener("change", async () => {
+    const files = Array.from(additionalImageInput.files);
+
+    for (const file of files) {
+        try {
+            const imageUrl = await uploadImage(file);
+
+            if (!imageUrl) continue;
+
+            additionalImageUrls.push(imageUrl);
+
+            const row = document.createElement("div");
+            row.className = "dynamic-field-row";
+
+            const preview = document.createElement("img");
+            preview.src = imageUrl;
+            preview.alt = "Product gallery image";
+            preview.style.width = "120px";
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.textContent = "Remove";
+
+            removeButton.addEventListener("click", () => {
+                additionalImageUrls = additionalImageUrls.filter(
+                    url => url !== imageUrl
+                );
+                row.remove();
+            });
+
+            row.append(preview, removeButton);
+            additionalImagesContainer.appendChild(row);
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    additionalImageInput.value = "";
+});
+
+document.getElementById("add-specification-button").addEventListener("click", () => {
+    const row = document.createElement("div");
+    row.className = "dynamic-field-row";
+
+    row.innerHTML = `
+        <input type="text" class="spec-key" placeholder="Specification name" maxlength="100">
+        <input type="text" class="spec-value" placeholder="Specification value" maxlength="500">
+        <button type="button" class="remove-field-button">Remove</button>
+    `;
+
+    row.querySelector(".remove-field-button").addEventListener("click", () => {
+        row.remove();
+    });
+
+    specificationsContainer.appendChild(row);
+});
+
+
+
+function collectSpecifications() {
+    const specifications = {};
+
+    const rows = specificationsContainer.querySelectorAll(".dynamic-field-row");
+
+    rows.forEach((row) => {
+        const key = row.querySelector(".spec-key").value.trim();
+        const value = row.querySelector(".spec-value").value.trim();
+
+        if (key && value) {
+            specifications[key] = value;
+        }
+    });
+
+    return specifications;
+}
+
+function collectAdditionalImages() {
+    const inputs = additionalImagesContainer.querySelectorAll(".additional-image-url");
+
+    return Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(Boolean);
+}
+
+function populateDynamicProductFields(product) {
+    specificationsContainer.innerHTML = "";
+    
+
+    Object.entries(product.specifications || {}).forEach(([key, value]) => {
+        const row = document.createElement("div");
+        row.className = "dynamic-field-row";
+
+        const keyInput = document.createElement("input");
+        keyInput.type = "text";
+        keyInput.className = "spec-key";
+        keyInput.placeholder = "Specification name";
+        keyInput.maxLength = 100;
+        keyInput.value = key;
+
+        const valueInput = document.createElement("input");
+        valueInput.type = "text";
+        valueInput.className = "spec-value";
+        valueInput.placeholder = "Specification value";
+        valueInput.maxLength = 500;
+        valueInput.value = value;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "remove-field-button";
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", () => row.remove());
+
+        row.append(keyInput, valueInput, removeButton);
+        specificationsContainer.appendChild(row);
+    });
+
+    (product.images || []).forEach((url) => {
+        const row = document.createElement("div");
+        row.className = "dynamic-field-row";
+
+        const imageInput = document.createElement("input");
+        imageInput.type = "url";
+        imageInput.className = "additional-image-url";
+        imageInput.placeholder = "Enter image URL";
+        imageInput.value = url;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "remove-field-button";
+        removeButton.textContent = "Remove";
+        removeButton.addEventListener("click", () => row.remove());
+
+        row.append(imageInput, removeButton);
+        additionalImagesContainer.appendChild(row);
+    });
+}
+additionalImagesContainer.replaceChildren();
+additionalImageUrls = product.images || [];
+
+additionalImageUrls.forEach((imageUrl) => {
+    const row = document.createElement("div");
+    row.className = "dynamic-field-row";
+
+    const preview = document.createElement("img");
+    preview.src = imageUrl;
+    preview.alt = "Product gallery image";
+    preview.style.width = "120px";
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.textContent = "Remove";
+
+    removeButton.addEventListener("click", () => {
+        additionalImageUrls = additionalImageUrls.filter(
+            url => url !== imageUrl
+        );
+        row.remove();
+    });
+
+    row.append(preview, removeButton);
+    additionalImagesContainer.appendChild(row);
+});

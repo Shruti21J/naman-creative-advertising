@@ -8,8 +8,14 @@
 
   /* Encode each path segment so spaces, commas, and parentheses work on the web. */
   function encodePath(path) {
+    if (!path) return "";
+
+    if (/^https?:\/\//i.test(path)) {
+        return path;
+    }
+
     return path.split('/').map(encodeURIComponent).join('/');
-  }
+}
 
   /* Real catalogue — filenames match files inside images/ */
   var PRODUCTS = [];
@@ -43,6 +49,12 @@
       .replace(/"/g, '&quot;')
       .replace(/</g, '&lt;');
   }
+  function getProductGallery(product) {
+    return [
+        product.image,
+        ...(product.images || [])
+    ].filter(Boolean);
+}
 
   function renderProducts(filter) {
     if (!productsGrid) return;
@@ -56,20 +68,55 @@
       return (
         '<article class="product-card reveal">' +
           '<div class="product-card__image">' +
-            '<img data-src="' + encodePath(product.image) + '" src="' + PLACEHOLDER + '" alt="' + escapeAttr(product.name) + '" width="400" height="460" loading="lazy" class="lazy">' +
-          '</div>' +
+    '<img data-src="' + encodePath(product.image) + '" src="' + PLACEHOLDER + '" alt="' + escapeAttr(product.name) + '" width="400" height="460" loading="lazy" class="lazy product-card-main-image">' +
+    (getProductGallery(product).length > 1 ?
+        '<button type="button" class="gallery-prev" aria-label="Previous image">&#10094;</button>' +
+        '<button type="button" class="gallery-next" aria-label="Next image">&#10095;</button>' +
+        '<span class="gallery-counter">1 / ' + getProductGallery(product).length + '</span>'
+        : '') +
+'</div>' +
           '<div class="product-card__body">' +
             '<p class="product-card__cat">' + categoryLabel(product.category) + '</p>' +
             '<h3 class="product-card__name">' + escapeAttr(product.name) + '</h3>' +
             '<p class="product-card__desc">' + escapeAttr(product.description) + '</p>' +
-            '<span class="product-card__moq">Quote on request</span>' +
-            '<a href="#contact" class="btn btn--primary btn--sm btn--full product-quote-btn" data-product="' + escapeAttr(product.name) + '">Request Quote</a>' +
+             '<span class="product-card__moq">Quote on request</span>' +
+'<a href="product.html?id=' + encodeURIComponent(product.id) + '" class="btn btn--secondary btn--sm btn--full">View Details</a>' +
+'<a href="#contact" class="btn btn--primary btn--sm btn--full product-quote-btn" data-product="' + escapeAttr(product.name) + '">Request Quote</a>' +
           '</div>' +
         '</article>'
       );
     }).join('');
 
     bindQuoteButtons();
+    document.querySelectorAll(".product-card").forEach(function (card) {
+      const productName = card.querySelector(".product-card__name").textContent;
+      const product = PRODUCTS.find(p => p.name === productName);
+  
+      if (!product) return;
+  
+      const gallery = getProductGallery(product);
+      if (gallery.length <= 1) return;
+  
+      let currentIndex = 0;
+  
+      const image = card.querySelector(".product-card-main-image");
+      const counter = card.querySelector(".gallery-counter");
+  
+      function showImage(index) {
+          currentIndex = (index + gallery.length) % gallery.length;
+          image.src = encodePath(gallery[currentIndex]);
+          image.dataset.src = encodePath(gallery[currentIndex]);
+          counter.textContent = (currentIndex + 1) + " / " + gallery.length;
+      }
+  
+      card.querySelector(".gallery-prev").addEventListener("click", function () {
+          showImage(currentIndex - 1);
+      });
+  
+      card.querySelector(".gallery-next").addEventListener("click", function () {
+          showImage(currentIndex + 1);
+      });
+  });
     initLazyLoading();
     initScrollReveal();
   }
@@ -83,17 +130,20 @@ async function loadProducts() {
     }
 
     var data = await response.json();
-
     PRODUCTS = data.products.map(function (product) {
       return {
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        description: product.description || "",
-        image: product.image_url || "",
-        moq: product.moq || null
+          id: product.id,
+          name: product.name,
+          category: product.category,
+          description: product.description || "",
+          image: product.image_url || "",
+          images: product.images || [],
+          specifications: product.specifications || {},
+          price: product.price ?? null,
+          moq: product.moq || null
       };
-    });
+  });
+
 
     renderProducts(activeFilter || "all");
   } catch (error) {
