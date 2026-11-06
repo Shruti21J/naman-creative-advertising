@@ -123,7 +123,7 @@
   
 async function loadProducts() {
   try {
-    var response = await fetch("http://127.0.0.1:8000/products");
+    var response = await fetch("https://naman-creative-api.onrender.com/products");
 
     if (!response.ok) {
       throw new Error("Could not load products");
@@ -411,7 +411,7 @@ submitButton.disabled = true;
 submitButton.textContent = 'Submitting...';
 
 try {
-  var response = await fetch('http://127.0.0.1:8000/enquiries', {
+  var response = await fetch('https://naman-creative-api.onrender.com/enquiries', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
